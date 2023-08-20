@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+  "time"
 	"strconv"
 	"strings"
   "encoding/json"
@@ -15,6 +16,20 @@ const (
   DEFAULT_PORT string = "3030"
   NICE_ROUTE_SLUG_PATH string = "/nice/"
 )
+
+type HealthCheck struct {
+  Status string `json:"status"`
+  Time int64 `json:"timestamp"`
+}
+
+func NewHealthCheck() *HealthCheck {
+  hc := &HealthCheck{
+    Status: "OK",
+    Time: time.Now().Unix(),
+  }
+
+  return hc
+}
 
 // just a little DRY
 func ServerError(e error, w http.ResponseWriter) {
@@ -88,7 +103,13 @@ func NicenessHandler(w http.ResponseWriter, r *http.Request) {
 // RootHandler basically exists as a liveness probe separate from 
 // the readiness probe test against /nice
 func RootHandler(w http.ResponseWriter, r *http.Request) {
-  w.Write([]byte("{status:ok}"))
+  hc := NewHealthCheck()
+  j, err := json.Marshal(hc)
+  if err != nil {
+    ServerError(err, w)
+  }
+  
+  w.Write(j)
 }
 
 func main() {
