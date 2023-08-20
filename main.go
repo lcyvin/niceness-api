@@ -33,7 +33,7 @@ func NewHealthCheck() *HealthCheck {
 
 // just a little DRY
 func ServerError(e error, w http.ResponseWriter) {
-  http.Error(w, fmt.Sprint(e), 502)
+  http.Error(w, fmt.Sprint(e), 500)
 }
 
 // ProcStat contains a PID and its assosciated Nice value
